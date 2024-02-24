@@ -25,13 +25,19 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(session({secret: "somethignanotherthing", resave: false, saveUninitialized: false, store: sessionStore}));
 
 app.use((req, res, next) => {
-    User.findById('659411b7beb407a08a467de6')
+    if (req.session.user) {
+        User.findById(req.session.user._id)
         .then(user => {
             req.user = user;
             next();
         })
         .catch(err => console.log(err));
-});
+    }
+    else {
+        next();
+    }
+    
+})
 
 app.use('/admin', adminRoutes);
 app.use(shopRoutes);
