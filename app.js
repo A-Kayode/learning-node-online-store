@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const express = require('express');
 const mongoose = require('mongoose');
 const session = require('express-session');
+const MongoSessionStore = require('connect-mongodb-session')(session);
 
 const adminRoutes = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
@@ -11,14 +12,17 @@ const authRoutes = require('./routes/auth');
 const errorController = require('./controllers/errors');
 const User = require('./models/user');
 
+const MongoDbURI = 'mongodb://127.0.0.1:27017/learning-node'
+
 const app = express();
+const sessionStore = new MongoSessionStore({uri: MongoDbURI, collection: 'sessions'});
 
 app.set('view engine', 'ejs');
 app.set('views', 'views');
 
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(express.static(path.join(__dirname, 'public')));
-app.use(session({secret: "somethignanotherthing", resave: false, saveUninitialized: false}));
+app.use(session({secret: "somethignanotherthing", resave: false, saveUninitialized: false, store: sessionStore}));
 
 app.use((req, res, next) => {
     User.findById('659411b7beb407a08a467de6')
@@ -35,7 +39,7 @@ app.use(authRoutes);
 
 app.use(errorController.get404);
 
-mongoose.connect('mongodb://127.0.0.1:27017/learning-node')
+mongoose.connect(MongoDbURI)
     .then(result => {
         User.findOne().then(user => {
             if (!user) {
