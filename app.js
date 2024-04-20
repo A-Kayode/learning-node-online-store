@@ -7,6 +7,7 @@ const session = require('express-session');
 const MongoSessionStore = require('connect-mongodb-session')(session);
 const csrf = require('csurf');
 const flash = require('connect-flash');
+require('dotenv').config()
 
 const adminRoutes = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
